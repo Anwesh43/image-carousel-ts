@@ -1,9 +1,12 @@
 const w : number = window.innerWidth 
 const h : number = window.innerHeight
 const delay : number = 30 
+const sizeFactor : number = 1.3
+const indicatorSizeFactor : number = 60.9
 
+const getSize : Function = () : number => Math.min(w, h) / sizeFactor 
 
-const getSize : Function = () : number => Math.min(w, h) / 2 
+const getIndicatorSize : Function = () : number => Math.min(w, h) / indicatorSizeFactor
 
 class Stage {
 
@@ -165,5 +168,43 @@ class ImageContainer {
 
     appendToParent(div : HTMLDivElement) {
         div.appendChild(this.screen)
+    }
+}
+
+class IndicatorItem {
+
+    div : HTMLDivElement = document.createElement('div')
+    filledDiv : HTMLDivElement = document.createElement('div')
+    
+    constructor(private i : number) {
+
+    }
+
+    initStyle() {
+        const size : number = getSize()
+        const indicatorSize = getIndicatorSize()
+        this.div.style.width = `${indicatorSize}px` 
+        this.div.style.height = `${indicatorSize}px`
+        this.div.style.border = '1px solid white'
+        this.div.style.position = 'absolute'
+        this.div.style.left = `${this.i * 2 * indicatorSize}px`
+        this.div.style.top = `${size - 4 * indicatorSize}px`
+        this.filledDiv.style.width = `0px` 
+        this.filledDiv.style.height = `0px`
+        this.filledDiv.style.position = 'absolute'
+        this.filledDiv.style.background = 'white'
+        this.div.appendChild(this.filledDiv)
+    }
+
+    appendToParent(div : HTMLDivElement) {
+        div.appendChild(this.div)
+    }
+
+    updateIndex(activeIndex : number, scale : number) {
+        if (this.i === activeIndex) {
+            const indicatorSize : number = getIndicatorSize()
+            this.filledDiv.style.width = `${indicatorSize * scale}px`
+            this.filledDiv.style.height = `${indicatorSize * scale}px`
+        }
     }
 }
