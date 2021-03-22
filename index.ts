@@ -200,11 +200,26 @@ class IndicatorItem {
         div.appendChild(this.div)
     }
 
-    updateIndex(activeIndex : number, scale : number) {
-        if (this.i === activeIndex) {
-            const indicatorSize : number = getIndicatorSize()
-            this.filledDiv.style.width = `${indicatorSize * scale}px`
-            this.filledDiv.style.height = `${indicatorSize * scale}px`
-        }
+    updateIndex(scale : number) {
+        const indicatorSize : number = getIndicatorSize()
+        this.filledDiv.style.width = `${indicatorSize * scale}px`
+        this.filledDiv.style.height = `${indicatorSize * scale}px`
+    }
+}
+
+class IndicatorContainer {
+    
+    div : HTMLDivElement = document.createElement('div')
+    indicatorElements : Array<IndicatorItem> = []
+
+    addItem() {
+        const item : IndicatorItem = new IndicatorItem(this.indicatorElements.length)
+        this.indicatorElements.push(item)
+        item.appendToParent(this.div)
+    }
+
+    update(index : number, dir : number,  scale : number) {
+        this.indicatorElements[index + dir].updateIndex(scale)
+        this.indicatorElements[index].updateIndex(1 - scale)
     }
 }
