@@ -1,6 +1,6 @@
 const w : number = window.innerWidth 
 const h : number = window.innerHeight
-const delay : number = 20 
+const delay : number = 30 
 
 
 const getSize : Function = () : number => Math.min(w, h) / 2 
@@ -19,23 +19,27 @@ class Stage {
         this.div.style.left = `${w / 2 - size / 2}px`
         this.div.style.top = `${h / 2 - size / 2}px`
         this.div.style.border = '1px dotted black'
+        this.div.style.overflow = 'clip'
+        this.imageContainer.initStyle()
+        this.imageContainer.appendToParent(this.div)
         document.body.appendChild(this.div)
     }
 
     handleKey() {
         const codeActionMap : Record<string, Function> = {
-            "Right": () => {
+            "ArrowRight": () => {
                 this.imageContainer.start(() => {
                    this.animator.stop() 
                 }, 1)
             },
-            "Left": () => {
+            "ArrowLeft": () => {
                 this.imageContainer.start(() => {
                     this.animator.stop() 
-                 }, 1)
+                 }, -1)
             }
         }
         window.onkeydown = (e : KeyboardEvent) => {
+            console.log("CODE", e.code)
             if (e.code in codeActionMap) {
                 this.animator.start(() => {
                     codeActionMap[e.code]()
@@ -45,9 +49,17 @@ class Stage {
         }
     }
 
-    static init() {
+    addImage(src : string) {
+        const img : HTMLImageElement = document.createElement('img')
+        img.src = src 
+        this.imageContainer.addImage(img)
+    }
+
+    static init() : Stage {
         const stage : Stage = new Stage()
         stage.initStyle()
+        stage.handleKey()
+        return stage 
     }
 
 }
@@ -77,7 +89,7 @@ class State {
     scale : number = 0 
 
     update(cb : Function) {
-        this.scale += 0.02 
+        this.scale += 0.1
         if (Math.abs(this.scale) > 1) {
             this.scale = 0 
             cb()
@@ -86,8 +98,6 @@ class State {
 }
 
 class ImageContainer {
-
-    div : HTMLDivElement = document.createElement('div')
     screen : HTMLDivElement = document.createElement('div')
     index : number = 0 
     dw : number = 0
@@ -95,16 +105,10 @@ class ImageContainer {
 
     initStyle() {
         const size : number = getSize()
-        this.div.style.height = `${size}px`
-        this.div.style.width = `${size}px`
-        this.div.style.position = 'absolute'
         this.screen.style.height = `${size}px`
         this.screen.style.width = `${size}px`
         this.screen.style.position = 'absolute'
-        this.div.style.overflow = 'none'
         this.screen.style.float = 'left'
-        this.div.appendChild(this.div)
-        document.body.appendChild(this.div)
     }
 
     addImage(img : HTMLImageElement) {
@@ -116,26 +120,26 @@ class ImageContainer {
     }
 
     next() {
-        if (this.index === this.screen.children.length) {
+        if (this.index === this.screen.children.length - 1) {
             return 
         }
         const size : number = getSize()
-        const x = size * (-this.index) - size  
-        this.div.style.left = `${x}px`
+        const x = size * (-this.index) - size * this.state.scale 
+        this.screen.style.left = `${x}px`
     }
 
-    right() {
+    prev() {
         
         if (this.index === 0) {
             return 
         }
         const size : number = getSize()
-        const x = size * (-this.index) + size  
-        this.div.style.left = `${x}px`
+        const x = size * (-this.index) + size * this.state.scale
+        this.screen.style.left = `${x}px`
     }
 
     shouldUpdate(dir : number) {
-        if (dir == 1 && this.index === this.screen.children.length) {
+        if (dir == 1 && this.index === this.screen.children.length - 1) {
             return false 
         }
         if (dir == -1 && this.index === 0) {
@@ -145,17 +149,21 @@ class ImageContainer {
     }
 
     start(cb : Function, dir : number = 1) {
-        if (this.shouldUpdate(dir)) {
+        if (!this.shouldUpdate(dir)) {
             cb()
         }
         if (dir == 1) {
             this.next()
         } else {
-            this.right()
+            this.prev()
         }
         this.state.update(() => {
             this.index += dir  
             cb()
         })
+    }
+
+    appendToParent(div : HTMLDivElement) {
+        div.appendChild(this.screen)
     }
 }
