@@ -8,7 +8,9 @@ const getSize : Function = () : number => Math.min(w, h) / 2
 class Stage {
 
     div : HTMLDivElement = document.createElement('div')
-    
+    imageContainer : ImageContainer = new ImageContainer()
+    animator : Animator = new Animator()
+
     initStyle() {
         const size : number = getSize()
         this.div.style.width = `${size}px` 
@@ -22,12 +24,23 @@ class Stage {
 
     handleKey() {
         const codeActionMap : Record<string, Function> = {
-            "Up": () => {},
-            "Down": () => {}
+            "Right": () => {
+                this.imageContainer.start(() => {
+                   this.animator.stop() 
+                }, 1)
+            },
+            "Left": () => {
+                this.imageContainer.start(() => {
+                    this.animator.stop() 
+                 }, 1)
+            }
         }
         window.onkeydown = (e : KeyboardEvent) => {
             if (e.code in codeActionMap) {
-                codeActionMap[e.code]()
+                this.animator.start(() => {
+                    codeActionMap[e.code]()
+                })
+                
             }           
         }
     }
