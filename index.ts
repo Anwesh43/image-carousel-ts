@@ -78,6 +78,8 @@ class ImageContainer {
     screen : HTMLDivElement = document.createElement('div')
     index : number = 0 
     dw : number = 0
+    state : State = new State()
+
     initStyle() {
         const size : number = getSize()
         this.div.style.height = `${size}px`
@@ -100,7 +102,7 @@ class ImageContainer {
         this.screen.appendChild(img)
     }
 
-    next(cb : Function) {
+    next() {
         if (this.index === this.screen.children.length) {
             return 
         }
@@ -109,7 +111,7 @@ class ImageContainer {
         this.div.style.left = `${x}px`
     }
 
-    right(cb : Function) {
+    right() {
         
         if (this.index === 0) {
             return 
@@ -119,7 +121,28 @@ class ImageContainer {
         this.div.style.left = `${x}px`
     }
 
-    start(cb : Function, dir : number = 1) {
+    shouldUpdate(dir : number) {
+        if (dir == 1 && this.index === this.screen.children.length) {
+            return false 
+        }
+        if (dir == -1 && this.index === 0) {
+            return false 
+        }
+        return true
+    }
 
+    start(cb : Function, dir : number = 1) {
+        if (this.shouldUpdate(dir)) {
+            cb()
+        }
+        if (dir == 1) {
+            this.next()
+        } else {
+            this.right()
+        }
+        this.state.update(() => {
+            this.index += dir  
+            cb()
+        })
     }
 }
