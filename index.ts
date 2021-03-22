@@ -2,12 +2,15 @@ const w : number = window.innerWidth
 const h : number = window.innerHeight
 const delay : number = 20 
 
+
+const getSize : Function = () : number => Math.min(w, h) / 2 
+
 class Stage {
 
     div : HTMLDivElement = document.createElement('div')
     
     initStyle() {
-        const size : number = Math.min(w, h) / 3
+        const size : number = getSize()
         this.div.style.width = `${size}px` 
         this.div.style.height = `${size}px`
         this.div.style.position = 'absolute'
@@ -53,5 +56,57 @@ class Animator {
             this.animated = false 
             clearInterval(this.interval)
         }
+    }
+}
+
+class ImageContainer {
+
+    div : HTMLDivElement = document.createElement('div')
+    screen : HTMLDivElement = document.createElement('div')
+    index : number = 0 
+    dw : number = 0
+    initStyle() {
+        const size : number = getSize()
+        this.div.style.height = `${size}px`
+        this.div.style.width = `${size}px`
+        this.div.style.position = 'absolute'
+        this.screen.style.height = `${size}px`
+        this.screen.style.width = `${size}px`
+        this.screen.style.position = 'absolute'
+        this.div.style.overflow = 'none'
+        this.screen.style.float = 'left'
+        this.div.appendChild(this.div)
+        document.body.appendChild(this.div)
+    }
+
+    addImage(img : HTMLImageElement) {
+        const size : number = getSize()
+        img.style.width = `${size}px`
+        img.style.height = `${size}px`
+        this.screen.style.width = `${parseFloat(this.screen.style.width) + size}px`
+        this.screen.appendChild(img)
+    }
+
+    next(cb : Function) {
+        if (this.index === this.screen.children.length) {
+            return 
+        }
+        const size : number = getSize()
+        const x = size * (-this.index) - size  
+        this.div.style.left = `${x}px`
+    }
+
+    right(cb : Function) {
+        
+        if (this.index === 0) {
+            return 
+        }
+        const size : number = getSize()
+        const x = size * (-this.index) + size  
+        this.div.style.left = `${x}px`
+    }
+
+    start(cb : Function, dir : number = 1) {
+        
     }
 }
