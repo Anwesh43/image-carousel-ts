@@ -59,6 +59,19 @@ class Animator {
     }
 }
 
+class State {
+
+    scale : number = 0 
+
+    update(cb : Function) {
+        this.scale += 0.02 
+        if (Math.abs(this.scale) > 1) {
+            this.scale = 0 
+            cb()
+        }
+    }
+}
+
 class ImageContainer {
 
     div : HTMLDivElement = document.createElement('div')
@@ -107,6 +120,6 @@ class ImageContainer {
     }
 
     start(cb : Function, dir : number = 1) {
-        
+
     }
 }
